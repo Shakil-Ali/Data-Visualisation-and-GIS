@@ -1,0 +1,210 @@
+---
+title: "Bar charts - diamonds"
+author: "o.duke-williams@ucl.ac.uk"
+date: "03/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Bar charts
+
+In this RMarkdown file, we will look at bar charts, using the diamonds example data set provided by R.
+
+Before we start, lets look at the data
+
+```{r data-summary}
+summary(diamonds)
+```
+
+### Task 1
+
+Add some R code in the chunk below to do the following
+
+1 List the first five rows of the table
+2 Select only those rows for which cut is 'Premium' and price is less than 500
+3 Do a basic scatterplot of carat against price
+
+```{r task1}
+# Add code here
+# 1
+q11 <- diamonds
+head(q11,5)
+# 2
+logicalInd <- diamonds$price < 500
+q12_working <- diamonds[logicalInd,]
+strInd <- grep(pattern="Premium",x=q12_working$cut)
+q12 <- q12_working[strInd,]
+q12
+#3
+library(ggplot2)
+q13 <- ggplot(q12, aes(x=price,y=carat)) + geom_point(position = position_dodge(width = .3)) + geom_point(colour = "red")+
+labs(x = "Price", y = "Carat", title =
+"Diamonds - Carat Against Price")+ theme_light() +  
+theme(plot.title = element_text (hjust=0.5))
+q13
+```
+
+You will see that the due to the volume of data, the scatterplot is very busy. Let's use a bar chart instead!
+
+We will make a bar chart of values of 'cut'.
+
+Consider the types of data that we looked at in week 2. What sort of data is 'cut'?
+
+```{r barchart1}
+# 'cut' is an ordinal data type
+plot1 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut))
+plot1
+```
+
+### Task
+
+Add some R code that produces a similar bar chart based on 'clarity' rather than 'cut'.  
+
+```{r task2}
+# Add your code here
+plot2 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=clarity))
+plot2
+```
+
+We can also create a bar chart from aggregate data (i.e. we have already got a count of the number of cases). The following chunk creates a small data frame (the number of students on different programmes) and then creates a bar chart using the count of students in each programme. Note that to do this, we need to add 'stat="identity"' to our command.
+
+```{r bar-identity}
+df1 <- data.frame(prog=c("ARM","DH","IS","LIS","PUB"),students=c(59,45,28,58,104))
+plot2 <- ggplot(data = df1) +
+  geom_bar(mapping=aes(x=prog,y=students),stat="identity")
+plot2
+```
+Often we might have data that has a pre-calculated count like this.
+
+## Using colour
+
+We can tell R to colour each bar separately.
+
+```{r barchart-colours}
+plot3 <- ggplot(data = diamonds) + geom_bar(mapping=aes(x=cut,colour=cut))
+plot4 <- ggplot(data = diamonds) + geom_bar(mapping=aes(x=cut,fill=cut))
+plot3
+plot4
+```
+What is the difference between these?
+
+Now, what if we want to colour all the bars together? The above examples focus on the aesthetic - what happens to each category. We can also add colour and fill commands at the *layer* level - these then apply to all elements. We name a specific colour here, because it doesn't make sense to name a variable which has multiple values across the layer.
+
+```{r barchart-layercols}
+plot5 <- ggplot(data = diamonds) + geom_bar(mapping=aes(x=cut),colour="black")
+plot6 <- ggplot(data = diamonds) + geom_bar(mapping=aes(x=cut),fill="blue")
+plot5
+plot6
+```
+
+We can mix colour options at both the category and layer level.
+
+### Task
+
+Add some R code that produces a bar chart with bar fill colour based on 'cut' and outline colour black.  
+
+
+```{r task3}
+# Add your code here
+task3_plot <- ggplot(data = diamonds) + geom_bar(mapping=aes(x=cut),colour="black")
+task3_plot
+```
+
+So far, our fill colour and categories (x variable) have been the same. The first bar is sized according to the number of diamonds with 'Fair' cut, and is coloured based on 'Fair' cut.
+
+We don't have to use the same variable for these. The following graph uses 'cut' as the x variable (so we have a bar for each cut) and 'clarity' as the fill colour. Clarity and cut don't have a a direct relationship - different cuts can be of different clarities. So, we will now shade each bar according to the number of diamonds of different clarity in each cut type.
+
+```{r barchart-cut-clarity}
+plot7 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=clarity))
+plot7
+```
+
+That shows us a stacked bar chart. However, we also have other options for how multiple characteristics are shown, using the 'position' option. The default option (which gives us a stacked bar) is 'stack'. The plot below is the same as the previous one, we've just explicity added a position option.
+
+```{r barchart-cut-clarity-positon}
+plot8 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=clarity),position="stack")
+plot8
+```
+### Task
+
+The alternative options for position are "identity","dodge" and "fill".
+
+1. Produce additional plots using these position options. How do they differ?
+2. Can you think of cirumstances under which you would have a preference for different uses of 'position'?
+
+
+```{r task4}
+# Add your code here
+# Position = identity
+plot9 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=clarity),position="identity")
+plot9
+# similar to stack
+# Position = dodge
+plot10 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=clarity),position="dodge")
+plot10
+# can be used to compare distribution amongst different levels
+# Position = fill
+plot11 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=clarity),position="fill")
+plot11
+# can be used to compare proportions in sets, not specifically on quantity
+```
+
+## Finally...
+
+Finally, we can alter the coordinate system with some simple functions.
+
+* coord_flip() swaps the x and y coordinates
+* coord_polar() uses polar coordinates
+
+We can add these functions as another layer to our ggplot command.
+
+For example we could say:
+
+    ggplot(data=diamonds) +
+       geom_bar(mapping=aes(x=cut,fill=cut)) +
+       coord_flip()
+       
+If we have an existing object produced by ggplot, we could say:
+
+    plot4 + coord_flip()
+
+### Task
+
+Using plot4
+
+1. Add coord_flip() as an option
+2. Add coord_polar() as an option
+
+Next, try doing the same, but with one of the plots that use x=cut and fill=clarity. 
+
+3. What happens to this in a polar plot?
+4. What happens with different settings for position?
+
+```{r coord-funcs}
+# Add R code here
+p41 <- plot4 + coord_flip()
+p41
+p42 <- plot4 + coord_polar()
+p42
+p43 <- plot7 + coord_polar()
+p43
+p441 <- plot8 + coord_polar()
+p441
+p442 <- plot9 + coord_polar()
+p442
+p443 <- plot10 + coord_polar()
+p443
+p444 <- plot11 + coord_polar()
+p444
+```

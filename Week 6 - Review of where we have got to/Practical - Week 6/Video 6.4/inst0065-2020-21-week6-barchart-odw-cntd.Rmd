@@ -1,0 +1,153 @@
+---
+title: "Bar charts options - diamonds"
+author: "o.duke-williams@ucl.ac.uk"
+date: "19/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Barchart options
+
+We will look at various combinations of position etc
+
+First a set of barcharts for which x and fill are the same variable
+
+```{r barchart-cut-cut}
+# Shown for reference, 'stackk' is the default
+plot1 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=cut))
+plot1
+
+plot2 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=cut),position="stack")
+plot2
+
+plot3 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=cut),position="identity")
+plot3
+
+plot4 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=cut),position="dodge")
+plot4
+
+plot5 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=cut),position="fill")
+plot5
+
+```
+
+Next a series of plots for which x and fill are different
+
+
+```{r barchart-cut-clarity}
+plot7 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=clarity),position="stack")
+plot7
+
+plot8 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=clarity),position="identity")
+plot8
+
+plot9 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=clarity),position="dodge")
+plot9
+
+plot10 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x=cut,fill=clarity),position="fill")
+plot10
+
+```
+
+With a dummy x value
+
+```{r barchart-dummy-clarity}
+plot11 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x="",fill=clarity),position="stack")
+plot11
+
+plot12 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x="",fill=clarity),position="identity")
+plot12
+
+plot13 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x="",fill=clarity),position="dodge")
+plot13
+
+plot14 <- ggplot(data = diamonds) +
+  geom_bar(mapping=aes(x="",fill=clarity),position="fill")
+plot14
+
+```
+
+
+## Coord flip
+
+Let's look at these with coord_flip()
+
+```{r coord-flip}
+plot2 + coord_flip()
+plot3 + coord_flip()
+plot4 + coord_flip()
+plot5 + coord_flip()
+
+plot7 + coord_flip()
+plot8 + coord_flip()
+plot9 + coord_flip()
+plot10 + coord_flip()
+
+plot11 + coord_flip()
+plot12 + coord_flip()
+plot13 + coord_flip()
+plot14 + coord_flip()
+
+
+```
+
+
+## Coord flip
+
+Let's look at these with coord_polar()
+
+```{r coord-polar}
+plot2 + coord_polar()
+plot3 + coord_polar()
+plot4 + coord_polar()
+plot5 + coord_polar()
+
+plot7 + coord_polar()
+plot8 + coord_polar()
+plot9 + coord_polar()
+plot10 + coord_polar()
+
+plot11 + coord_polar()
+plot12 + coord_polar()
+plot13 + coord_polar()
+plot14 + coord_polar()
+
+```
+
+## Coord flip (y)
+
+Finally let's look at these with coord_polar(y)
+
+```{r coord-polar-y}
+plot2 + coord_polar("y")
+plot3 + coord_polar("y")
+plot4 + coord_polar("y")
+plot5 + coord_polar("y")
+
+plot7 + coord_polar("y")
+plot8 + coord_polar("y")
+plot9 + coord_polar("y")
+plot10 + coord_polar("y")
+
+plot11 + coord_polar("y")
+plot12 + coord_polar("y")
+plot13 + coord_polar("y")
+plot14 + coord_polar("y")
+
+```

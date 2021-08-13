@@ -1,0 +1,87 @@
+---
+title: "merge options"
+author: "o.duke-williams@ucl.ac.uk"
+date: "03/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This is a short RMarkdown file showing how merge() works with inputs where the common field between two tables has some missing values.
+
+Firstly, let's create two sample data frames, df1 and df2
+
+```{r create-data}
+df1 <- data.frame(id=c("a","b","d"),v1=c("red","blue","green"))
+df2 <- data.frame(id=c("a","b","c","e"),v2=c("up","down","left","right"))
+``` 
+
+## Tasks
+
+You will be asked to add some elements to this file. You will need to open it in RStudio. For each task you will need to add some R code. You will then need to save the RMarkdown file and then use 'knit'. If there are problems in your code, you will see error messages in the windos.
+
+### Task
+
+First, add some code to display the content of both data frames
+
+```{r task1}
+# You will add code here
+summary(df1)
+summary(df2)
+```
+
+We are now going to merge the data frames, and look at the results
+
+```{r merge1}
+m1 <- merge(df1,df2)
+m1
+```
+
+How many rows are shown in the results? Why do you think that these rows are included.
+
+### Task
+
+Edit the RMarkdown file to complete the sentence:
+
+The merged table m1 shows 3 rows. This is because it has to match the number of rows as one of the df's.
+
+We can adjustthe behaviour of merge using the 'all' option. Using 'all.x=TRUE' we indicate that we will use all the values in the 'x' table (the first one mentioned in the merge() statement, in our case df1).
+
+```{r merge2}
+m2 <- merge(df1,df2,all.x=TRUE)
+m2
+```
+
+### Task
+
+Edit the RMarkdown file to complete the sentence:
+
+The merged table m2 shows *num* rows. This is because...
+
+What value do the results show where df1 contained an id that was not found in df2?
+
+### Task
+
+Edit the R code in the markdown file to do a merge of df1 and df2 using all.y=TRUE. Make sure you display the result.
+
+What is the effect this time?
+
+```{r task2}
+# You will add code here
+m3 <- merge(df1,df2,all.y=TRUE)
+m3
+```
+
+### Task
+
+Finally, edit the R code in the markdown file to do a merge of df1 and df2 using all=TRUE.
+
+What is the effect this time? How does this differ from all.x and all.y?
+
+```{r task3}
+# You will add code here
+m4 <- merge(df1,df2,all=TRUE)
+m4
+```

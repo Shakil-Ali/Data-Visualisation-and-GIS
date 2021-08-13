@@ -1,0 +1,148 @@
+---
+title: "EU Ref - GE2015"
+author: "o.duke-williams@ucl.ac.uk"
+date: "02/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## The 2016 EU Referendum and 2015 General Election results
+
+This [RMarkdown](http://rmarkdown.rstudio.com/)  file compares estimates and known results at constituency level for the 2016 EU Referendum.
+
+Sources
+-------
+
+* [Constituency level EU Referendum results](https://commonslibrary.parliament.uk/brexit-votes-by-constituency/) 
+* [2015 General Election Results](https://commonslibrary.parliament.uk/research-briefings/cbp-7186/)
+
+Background
+----------
+
+The 2016 EU ('Brexit') Referendum was conducted at local authority level: results were published for all authorities (with the overall result simply being the aggregate count across all areas). There was considerable interest in identifying results at parliamentary constituency level, and these were [modelled](https://doi.org/10.1080/17457289.2017.1287081) by Chris Hanretty. Some local authorities also published more detailed results at ward level, allowing accurate constituency data to be calculated, permitting a comparison of the Hanretty estimates and the actual results where known.
+
+```{r data-import, echo=FALSE}
+datadir <- "N:/work/teaching/inst0065-dataviz-gis/week5/ge2015-brexit/"
+euref2016 <- read.csv(paste(datadir,"euref-data.csv",sep=""),header=TRUE,as.is=TRUE)
+ge2015 <- read.csv(paste(datadir,"hocl-ge2015-results-summary.csv",sep=""),header=TRUE,as.is=TRUE)
+summary(euref2016)
+summary(ge2015)
+```
+
+## Comparing the estimates and observed results
+
+How good were Chris Hanretty's initial estimates when compared to later obs```{r basic-plot}
+plot1 <- ggplot(data=euref2016) +
+  geom_point(mapping=aes(x=to_use,y=ch_est))
+plot1
+```
+
+There's a heavy line along the diagonal where we have a lot of results. Lets use alpha to try to make it easier to read.
+erved actual constituency level results? We will use a scatterplot to compare the values of 'to_use' (constituency results where availale) and 'ch_est'
+
+
+```{r basic-plot-alpha}
+plot2 <- ggplot(data=euref2016) +
+  geom_point(mapping=aes(x=to_use,y=ch_est),alpha=0.2)
+plot2
+```
+
+This version is still heavily dominated by the central diagonal. These are cases where there is no constituency information, and we're using the Hanretty estimates anyway.
+
+We can try filtering out those records. In order to do so, we'll use 'result' in the referendum data set. This tells us whether the constituency result is available.
+
+```{r filter-data}
+euref_filt <- euref2016 %>% filter(result == "Yes")
+```
+
+We'll now replot the data.
+
+```{r filtered-plot}
+plot3 <- ggplot(data=euref_filt) +
+  geom_point(mapping=aes(x=to_use,y=ch_est))
+plot3
+```
+
+## Party effects
+
+There was much discussion about the relationship between party preference and referendum vote. The referendum data tells us about constituencies as places, but we also need to know about them in terms of political parties. This information is contained in our second dataset.
+
+By merging together the referendum data set and the general election data 
+set we can now look at this. They both have a field called 'ons_id' which contain consistent id codes for these areas.
+
+###Merging data
+
+We join the data based on the constituency, using the common field 'ons_id'
+
+```{r merge-data}
+refge <- merge(euref2016,ge2015,by="ons_id")
+refge[1:5,] # show a sample of the data
+```
+
+### Plotting merged data
+
+We can ask ggplot to colour points according to a value in the data. Using our merged data, we'll use 'first_party' (from the election results data), which tells us which party had the highest number of votes.
+
+```{r plot-parties-all}
+plot4 <- ggplot(data=refge) +
+  geom_point(mapping=aes(x=to_use,y=ch_est,colour=first_party))
+plot4
+```
+
+That's quite busy, and we also have the problem that R has used a default colour scheme. In the case of political parties, each party usually has a typical associated colour. Some times - as is the case here - several parties will have similar colours.
+
+First though, let's go back to using filtered data (where there is a difference between the estimate and the observed). We need to merge the data again, this time using the filtered data. 
+
+```{r merge-filtered-data}
+refge_filt <- merge(euref_filt,ge2015,by="ons_id")
+```
+
+Now let's plot that
+
+```{r plot-parties-filt}
+plot5 <- ggplot(data=refge_filt) +
+  geom_point(mapping=aes(x=to_use,y=ch_est,colour=first_party))
+plot5
+```
+
+That's easier to see, and we've removed quite a bit of data. We've also removed several parties (these ones did not have any seats in areas for which a constituency level result was available). We need to decide whether it is appropriate to drop this data.
+
+We still want to improve the use of colour. Political parties tend to have closely associated colours. We can use some of these.
+
+For typical colours used, see for example: [Wikipedia page on 2015 election](https://en.wikipedia.org/wiki/2015_United_Kingdom_general_election) 
+
+We still have some things to think about - there are still a lot of parties, and several of them use similar colours. Additionally, in the UK, there are different parties in England, Scotland, Wales and particularly, Northern Ireland.
+
+However, we really just want to demonstrate what is possible here, so we will highlight a few major parties.
+
+We have told ggplot that we want to use first_party as the variable on which to assign colours - so dots will be coloured the same if they refer to the same party; however ggplot will assign the colours.
+
+There are a number of ways of overriding this.
+
+In order to demonstrate one, we shall use [scale_colour_manual](https://ggplot2.tidyverse.org/reference/scale_manual.html) which allows us to manually override the colours used.
+
+For this, we need to supply a vector of values. This needs to be the same length as the number of classes required, and will be processed in the same order. Checking manually, our revised plot has 9 parties, so we have created a vector with 9 values. Most of these have been set to "grey", and then two parties have been highlighted.
+
+Can you add extra party colours? How many do you want to add?
+
+```{r plot-parties-filt-colour}
+cols <- c("blue","grey","grey","red","grey","grey","grey","grey","grey")
+plot6 <- ggplot(data=refge_filt) +
+  geom_point(mapping=aes(x=to_use,y=ch_est,colour=first_party)) +
+  scale_colour_manual(values=cols)
+plot6
+```
+
+## Next steps
+
+Try adding another block of r code (the chunk name must be different to other chunks!) or adapting the plit above.
+
+1. Add some labels (using labs)
+2. Adjust the limits of the plot using xlim and ylim
+3. Try adding a theme option
+
+For examples of how to do this, you could see the R script from week 4 (which added some of these layers) or see the [ggplot cheatsheet](https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf)
